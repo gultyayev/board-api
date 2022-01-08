@@ -2,7 +2,8 @@
 
 ## Setup
 
-1. Git clone
-2. `npm i`
-3. `npm run start`
-4. Open <http://localhost:3000/api/> to explore the available API
+1. `git clone https://github.com/gultyaev/board-api.git`
+2. `cd board-api`
+3. `npm i`
+4. `npm run start`
+5. Open <http://localhost:3000/api/> to explore the available API
