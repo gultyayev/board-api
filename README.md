@@ -6,4 +6,4 @@
 2. `cd board-api`
 3. `npm i`
 4. `npm run start`
-5. Open <http://localhost:3000/api/> to explore the available API
+5. Open <http://localhost:4000/api/> to explore the available API
