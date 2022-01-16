@@ -1,12 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ColumnDto } from 'src/columns/dtos/column.dto';
+import { TaskDto } from 'src/tasks/dtos/task.dto';
 
-export class BoardItemDto {
-  @ApiProperty({
-    type: 'string',
-    format: 'uuid',
-  })
-  id: string;
-  title: string;
-  body: string;
-  createdAt: string;
+export class BoardDto {
+  columns: ColumnDto[];
+  tasks: TaskDto[];
 }

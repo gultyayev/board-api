@@ -26,4 +26,8 @@ export class ColumnsService {
 
     columns[columnIndex].title = title;
   }
+
+  hasColumn(id: string): boolean {
+    return !!columns.find((col) => col.id === id);
+  }
 }

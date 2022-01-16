@@ -12,6 +12,7 @@ import { UsersService } from './users/users.service';
 import { ColumnsService } from './columns/columns.service';
 import { TasksService } from './tasks/tasks.service';
 import { ColumnsController } from './columns/columns.controller';
+import { TasksController } from './tasks/tasks.controller';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { ColumnsController } from './columns/columns.controller';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AppController, AuthController, BoardController, ColumnsController],
+  controllers: [AppController, AuthController, BoardController, ColumnsController, TasksController],
   providers: [
     AppService,
     UsersService,

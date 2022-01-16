@@ -1,21 +1,25 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { BoardItemDto } from './dtos/board-item.dto';
+import { Controller, Get } from '@nestjs/common';
+import { ColumnsService } from 'src/columns/columns.service';
+import { ColumnDto } from 'src/columns/dtos/column.dto';
+import { TaskDto } from 'src/tasks/dtos/task.dto';
+import { TasksService } from 'src/tasks/tasks.service';
+import { BoardDto } from './dtos/board-item.dto';
 
 @Controller('board')
 export class BoardController {
+  constructor(
+    private columnsService: ColumnsService,
+    private tasksService: TasksService,
+  ) {}
+
   @Get()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
-  getAll(): BoardItemDto[] {
-    return [
-      {
-        id: '1',
-        title: 'test',
-        body: 'test',
-        createdAt: new Date().toISOString(),
-      },
-    ];
+  getAll(): BoardDto {
+    const columns: ColumnDto[] = this.columnsService.getColumns();
+    const tasks: TaskDto[] = this.tasksService.getTasks();
+
+    return {
+      columns,
+      tasks,
+    };
   }
 }

@@ -9,14 +9,6 @@ import { AddColumnDto, ColumnDto } from './dtos/column.dto';
 export class ColumnsController {
   constructor(private columnsService: ColumnsService) {}
 
-  @Get()
-  @ApiOperation({
-    summary: 'Get all columns',
-  })
-  getAllColumns(): ColumnDto[] {
-    return this.columnsService.getColumns();
-  }
-
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
