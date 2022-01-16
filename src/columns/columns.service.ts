@@ -1,33 +1,54 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { readFileSync, writeFileSync } from 'fs';
 import { AddColumnDto, ColumnDto } from './dtos/column.dto';
 
-const columns: ColumnDto[] = [];
+const path = 'columns.json';
 
 @Injectable()
 export class ColumnsService {
+  private columns: ColumnDto[] = [];
+
+  constructor() {
+    const columns: string = readFileSync(path, {
+      encoding: 'utf-8',
+      flag: 'a+',
+    });
+
+    if (columns) {
+      const obj = JSON.parse(columns) || [];
+      this.columns = obj;
+    }
+  }
+
   getColumns(): ColumnDto[] {
-    return columns;
+    return this.columns;
   }
 
   addColumn({ title }: AddColumnDto): void {
-    columns.push({
+    this.columns.push({
       id: randomUUID(),
       title,
     });
+    this.writeColumns();
   }
 
   updateColumn({ id, title }: ColumnDto): void {
-    const columnIndex = columns.findIndex((c) => c.id === id);
+    const columnIndex = this.columns.findIndex((c) => c.id === id);
 
     if (columnIndex < 0) {
       throw new NotFoundException();
     }
 
-    columns[columnIndex].title = title;
+    this.columns[columnIndex].title = title;
+    this.writeColumns();
   }
 
   hasColumn(id: string): boolean {
-    return !!columns.find((col) => col.id === id);
+    return !!this.columns.find((col) => col.id === id);
+  }
+
+  private writeColumns(): void {
+    writeFileSync(path, JSON.stringify(this.columns), { encoding: 'utf-8' });
   }
 }

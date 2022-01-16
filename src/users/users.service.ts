@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 
 const path = 'users.json';
 
@@ -8,7 +8,7 @@ export class UsersService {
   private users: Record<string, string> = {};
 
   constructor() {
-    const users = fs.readFileSync(path, {
+    const users = readFileSync(path, {
       encoding: 'utf-8',
       flag: 'a+',
     });
@@ -19,8 +19,6 @@ export class UsersService {
     } else {
       this.addUser('test', 'test');
     }
-
-    console.log({ users: this.users });
   }
 
   validateUser(username: string, password: string): boolean {
@@ -34,7 +32,7 @@ export class UsersService {
 
   addUser(username: string, password: string): void {
     this.users[username] = password;
-    fs.writeFileSync(path, JSON.stringify(this.users), {
+    writeFileSync(path, JSON.stringify(this.users), {
       encoding: 'utf-8',
     });
   }
