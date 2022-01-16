@@ -31,6 +31,16 @@ export class TasksService {
     return newTask;
   }
 
+  hasTask(id: string): boolean {
+    return !!this.tasks.find((t) => t.id === id);
+  }
+
+  updateTask(task: TaskDto): void {
+    const idx = this.tasks.findIndex((t) => t.id === task.id);
+    this.tasks[idx] = task;
+    this.writeTasks();
+  }
+
   getTasks(): TaskDto[] {
     return this.tasks;
   }
