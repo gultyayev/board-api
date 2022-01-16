@@ -9,6 +9,9 @@ import { JwtStrategy } from './auth/jwt.strategy';
 import { LocalStrategy } from './auth/local.strategy';
 import { BoardController } from './board/board.controller';
 import { UsersService } from './users/users.service';
+import { ColumnsService } from './columns/columns.service';
+import { TasksService } from './tasks/tasks.service';
+import { ColumnsController } from './columns/columns.controller';
 
 @Module({
   imports: [
@@ -17,13 +20,15 @@ import { UsersService } from './users/users.service';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [AppController, AuthController, BoardController],
+  controllers: [AppController, AuthController, BoardController, ColumnsController],
   providers: [
     AppService,
     UsersService,
     LocalStrategy,
     AuthService,
     JwtStrategy,
+    ColumnsService,
+    TasksService,
   ],
 })
 export class AppModule {}
