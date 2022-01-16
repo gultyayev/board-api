@@ -12,9 +12,9 @@ export class UsersService {
       encoding: 'utf-8',
       flag: 'a+',
     });
-    const obj: Record<string, string> = JSON.parse(users) || {};
 
-    if (Object.keys(obj).length) {
+    if (users) {
+      const obj: Record<string, string> = JSON.parse(users);
       this.users = obj;
     } else {
       this.addUser('test', 'test');
