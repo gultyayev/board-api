@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { readFileSync, writeFileSync } from 'fs';
-import { AddTaskDto, TaskDto } from './dtos/task.dto';
+import { AddTaskDto, ReorderTasksDto, TaskDto } from './dtos/task.dto';
 
 const path = 'tasks.json';
 
@@ -38,6 +38,14 @@ export class TasksService {
   updateTask(task: TaskDto): void {
     const idx = this.tasks.findIndex((t) => t.id === task.id);
     this.tasks[idx] = task;
+    this.writeTasks();
+  }
+
+  reorderTasks(taskList: ReorderTasksDto): void {
+    taskList.ids.forEach((id) => {
+      const taskIdx = this.tasks.findIndex((task) => task.id === id);
+      this.tasks.push(...this.tasks.splice(taskIdx, 1));
+    });
     this.writeTasks();
   }
 

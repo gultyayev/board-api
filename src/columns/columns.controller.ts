@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ColumnsService } from './columns.service';
@@ -15,8 +15,8 @@ export class ColumnsController {
     summary: 'Add new column',
   })
   @ApiBearerAuth()
-  addColumn(@Body() column: AddColumnDto): void {
-    this.columnsService.addColumn(column);
+  addColumn(@Body() column: AddColumnDto): ColumnDto {
+    return this.columnsService.addColumn(column);
   }
 
   @Put()

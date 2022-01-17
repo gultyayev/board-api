@@ -9,7 +9,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ColumnsService } from 'src/columns/columns.service';
-import { AddTaskDto, TaskDto } from './dtos/task.dto';
+import { AddTaskDto, ReorderTasksDto, TaskDto } from './dtos/task.dto';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
@@ -50,5 +50,21 @@ export class TasksController {
     }
 
     this.tasksService.updateTask(task);
+  }
+
+  @Put('reorder')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: 'Reorder tasks',
+  })
+  @ApiBearerAuth()
+  reorderTasks(@Body() taskList: ReorderTasksDto): void {
+    taskList.ids.forEach((id) => {
+      if (!this.tasksService.hasTask(id)) {
+        throw new NotFoundException();
+      }
+    });
+
+    this.tasksService.reorderTasks(taskList);
   }
 }

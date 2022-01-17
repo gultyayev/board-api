@@ -25,12 +25,14 @@ export class ColumnsService {
     return this.columns;
   }
 
-  addColumn({ title }: AddColumnDto): void {
-    this.columns.push({
+  addColumn({ title }: AddColumnDto): ColumnDto {
+    const col: ColumnDto = {
       id: randomUUID(),
       title,
-    });
+    };
+    this.columns.push(col);
     this.writeColumns();
+    return col;
   }
 
   updateColumn({ id, title }: ColumnDto): void {

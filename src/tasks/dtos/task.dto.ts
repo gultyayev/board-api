@@ -18,3 +18,10 @@ export class TaskDto extends AddTaskDto {
   @IsUUID()
   id: string;
 }
+
+export class ReorderTasksDto {
+  @IsUUID('4', {
+    each: true,
+  })
+  ids: string[];
+}
