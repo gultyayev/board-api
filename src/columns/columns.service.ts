@@ -50,6 +50,11 @@ export class ColumnsService {
     return !!this.columns.find((col) => col.id === id);
   }
 
+  deleteColumn(id: string): void {
+    this.columns = this.columns.filter((col) => col.id !== id);
+    this.writeColumns;
+  }
+
   private writeColumns(): void {
     writeFileSync(path, JSON.stringify(this.columns), { encoding: 'utf-8' });
   }

@@ -49,6 +49,11 @@ export class TasksService {
     this.writeTasks();
   }
 
+  deleteTasksByColId(columnId: string): void {
+    this.tasks = this.tasks.filter((task) => task.columnId !== columnId);
+    this.writeTasks();
+  }
+
   getTasks(): TaskDto[] {
     return this.tasks;
   }
