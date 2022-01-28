@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   NotFoundException,
+  Param,
   Post,
   Put,
   UseGuards,
@@ -9,6 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ColumnsService } from 'src/columns/columns.service';
+import { FindOneDto } from 'src/shared/dtos/one.dto';
 import { AddTaskDto, ReorderTasksDto, TaskDto } from './dtos/task.dto';
 import { TasksService } from './tasks.service';
 
@@ -50,6 +53,20 @@ export class TasksController {
     }
 
     this.tasksService.updateTask(task);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: 'Delete task',
+  })
+  @ApiBearerAuth()
+  deleteTask(@Param() { id }: FindOneDto): void {
+    if (!this.tasksService.hasTask(id)) {
+      throw new NotFoundException();
+    }
+
+    this.tasksService.deleteTask(id);
   }
 
   @Put('reorder')

@@ -9,12 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindOneDto } from 'src/shared/dtos/one.dto';
 import { TasksService } from 'src/tasks/tasks.service';
 import { ColumnsService } from './columns.service';
@@ -52,11 +47,6 @@ export class ColumnsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: 'Update existing column',
-  })
-  @ApiParam({
-    type: 'string',
-    format: 'uuid',
-    name: 'id',
   })
   @ApiBearerAuth()
   deleteColumn(@Param() { id }: FindOneDto): void {

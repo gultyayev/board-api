@@ -35,6 +35,11 @@ export class TasksService {
     return !!this.tasks.find((t) => t.id === id);
   }
 
+  deleteTask(id: string): void {
+    this.tasks = this.tasks.filter((t) => t.id !== id);
+    this.writeTasks();
+  }
+
   updateTask(task: TaskDto): void {
     const idx = this.tasks.findIndex((t) => t.id === task.id);
     this.tasks[idx] = task;
