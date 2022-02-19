@@ -75,7 +75,7 @@ export class UsersService {
   }
 
   private async getHash(password: string): Promise<string> {
-    const buffer = await scriptPromise(password, SALT, 24);
-    return buffer.toString();
+    const buffer: Buffer = (await scriptPromise(password, SALT, 24)) as Buffer;
+    return buffer.toString('hex');
   }
 }
