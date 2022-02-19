@@ -58,9 +58,8 @@ export class TasksService {
         .update({
           TableName: COLUMNS_TABLE,
           Key: { id: column.id },
-          UpdateExpression: 'REMOVE tasks[:idx]',
+          UpdateExpression: `REMOVE tasks[${taskIdx}]`,
           ExpressionAttributeValues: {
-            ':idx': taskIdx,
             ':id': column.id,
           },
           ConditionExpression: 'id = :id',
