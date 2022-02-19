@@ -5,6 +5,7 @@ import { createServer, proxy, Response } from 'aws-serverless-express';
 import * as express from 'express';
 import { Server } from 'http';
 import { createApp } from './app';
+import { STAGE } from './env';
 
 let cachedServer: Server;
 async function bootstrap(): Promise<Server> {
@@ -17,6 +18,7 @@ async function bootstrap(): Promise<Server> {
     .setTitle('Board API')
     .setDescription('The board API description')
     .setVersion('1.0')
+    .addServer(`/${STAGE}`)
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
@@ -32,5 +34,13 @@ export async function handler(event: any, context: Context): Promise<Response> {
     const server = await bootstrap();
     cachedServer = server;
   }
+
+  if (event.path === '/api') {
+    event.path = '/api/';
+  }
+  event.path = event.path.includes('swagger-ui')
+    ? `/api${event.path}`
+    : event.path;
+
   return proxy(cachedServer, event, context, 'PROMISE').promise;
 }

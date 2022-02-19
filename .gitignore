@@ -5,6 +5,7 @@
 # Serverless
 .serverless
 .dynamodb
+_optimize
 
 # Logs
 logs
