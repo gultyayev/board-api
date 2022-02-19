@@ -1,61 +1,107 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { readFileSync, writeFileSync } from 'fs';
-import { AddColumnDto, ColumnDto } from './dtos/column.dto';
-
-const path = 'columns.json';
+import { dynamoDB } from 'src/db';
+import { COLUMNS_TABLE } from 'src/env';
+import { AddColumnDto, ColumnDto, UpdateDto } from './dtos/column.dto';
 
 @Injectable()
 export class ColumnsService {
-  private columns: ColumnDto[] = [];
+  private readonly logger = new Logger(ColumnsService.name);
 
-  constructor() {
-    const columns: string = readFileSync(path, {
-      encoding: 'utf-8',
-      flag: 'a+',
-    });
+  async getColumns(): Promise<ColumnDto[]> {
+    this.logger.verbose('Get all columns');
 
-    if (columns) {
-      const obj = JSON.parse(columns) || [];
-      this.columns = obj;
-    }
+    const result = await dynamoDB
+      .scan({
+        TableName: COLUMNS_TABLE,
+      })
+      .promise();
+
+    this.logger.verbose('Result', result);
+
+    return (result.Items as any) || [];
   }
 
-  getColumns(): ColumnDto[] {
-    return this.columns;
-  }
+  async addColumn({ title }: AddColumnDto): Promise<ColumnDto> {
+    this.logger.verbose('Add column');
 
-  addColumn({ title }: AddColumnDto): ColumnDto {
     const col: ColumnDto = {
       id: randomUUID(),
       title,
+      tasks: [],
     };
-    this.columns.push(col);
-    this.writeColumns();
+
+    await dynamoDB
+      .put({
+        TableName: COLUMNS_TABLE,
+        Item: col,
+      })
+      .promise();
+
+    this.logger.verbose('Column added', col);
+
     return col;
   }
 
-  updateColumn({ id, title }: ColumnDto): void {
-    const columnIndex = this.columns.findIndex((c) => c.id === id);
+  async updateColumn({ id, title }: UpdateDto): Promise<void> {
+    try {
+      await dynamoDB
+        .update({
+          TableName: COLUMNS_TABLE,
+          Key: {
+            id,
+          },
+          UpdateExpression: 'SET title = :title',
+          ExpressionAttributeValues: {
+            ':title': title,
+            ':id': id,
+          },
+          ConditionExpression: 'id = :id',
+        })
+        .promise();
+    } catch (e) {
+      if (e.code === 'ConditionalCheckFailedException') {
+        throw new NotFoundException();
+      } else {
+        this.logger.error(e);
 
-    if (columnIndex < 0) {
-      throw new NotFoundException();
+        throw new InternalServerErrorException();
+      }
     }
-
-    this.columns[columnIndex].title = title;
-    this.writeColumns();
   }
 
-  hasColumn(id: string): boolean {
-    return !!this.columns.find((col) => col.id === id);
+  async hasColumn(id: string): Promise<boolean> {
+    const result = await dynamoDB
+      .get({
+        TableName: COLUMNS_TABLE,
+        Key: { id },
+      })
+      .promise();
+
+    return !!result.Item;
   }
 
-  deleteColumn(id: string): void {
-    this.columns = this.columns.filter((col) => col.id !== id);
-    this.writeColumns;
-  }
+  async deleteColumn(id: string): Promise<void> {
+    try {
+      await dynamoDB
+        .delete({
+          TableName: COLUMNS_TABLE,
+          Key: { id },
+        })
+        .promise();
+    } catch (e) {
+      if (e.code === 'ConditionalCheckFailedException') {
+        throw new NotFoundException();
+      } else {
+        this.logger.error(e);
 
-  private writeColumns(): void {
-    writeFileSync(path, JSON.stringify(this.columns), { encoding: 'utf-8' });
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }

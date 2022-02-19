@@ -2,26 +2,19 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ColumnsService } from 'src/columns/columns.service';
 import { ColumnDto } from 'src/columns/dtos/column.dto';
-import { TaskDto } from 'src/tasks/dtos/task.dto';
-import { TasksService } from 'src/tasks/tasks.service';
 import { BoardDto } from './dtos/board-item.dto';
 
 @Controller('board')
 @ApiTags('board')
 export class BoardController {
-  constructor(
-    private columnsService: ColumnsService,
-    private tasksService: TasksService,
-  ) {}
+  constructor(private columnsService: ColumnsService) {}
 
   @Get()
-  getAll(): BoardDto {
-    const columns: ColumnDto[] = this.columnsService.getColumns();
-    const tasks: TaskDto[] = this.tasksService.getTasks();
+  async getAll(): Promise<BoardDto> {
+    const columns: ColumnDto[] = await this.columnsService.getColumns();
 
     return {
       columns,
-      tasks,
     };
   }
 }

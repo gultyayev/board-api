@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -11,17 +10,13 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindOneDto } from 'src/shared/dtos/one.dto';
-import { TasksService } from 'src/tasks/tasks.service';
 import { ColumnsService } from './columns.service';
 import { AddColumnDto, ColumnDto } from './dtos/column.dto';
 
 @ApiTags('columns')
 @Controller('columns')
 export class ColumnsController {
-  constructor(
-    private columnsService: ColumnsService,
-    private tasksService: TasksService,
-  ) {}
+  constructor(private columnsService: ColumnsService) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
@@ -29,7 +24,7 @@ export class ColumnsController {
     summary: 'Add new column',
   })
   @ApiBearerAuth()
-  addColumn(@Body() column: AddColumnDto): ColumnDto {
+  addColumn(@Body() column: AddColumnDto): Promise<ColumnDto> {
     return this.columnsService.addColumn(column);
   }
 
@@ -39,8 +34,8 @@ export class ColumnsController {
     summary: 'Update existing column',
   })
   @ApiBearerAuth()
-  updateColumn(@Body() column: ColumnDto): void {
-    this.columnsService.updateColumn(column);
+  async updateColumn(@Body() column: ColumnDto): Promise<void> {
+    await this.columnsService.updateColumn(column);
   }
 
   @Delete(':id')
@@ -49,12 +44,7 @@ export class ColumnsController {
     summary: 'Update existing column',
   })
   @ApiBearerAuth()
-  deleteColumn(@Param() { id }: FindOneDto): void {
-    if (!this.columnsService.hasColumn(id)) {
-      throw new NotFoundException();
-    }
-
-    this.columnsService.deleteColumn(id);
-    this.tasksService.deleteTasksByColId(id);
+  async deleteColumn(@Param() { id }: FindOneDto): Promise<void> {
+    await this.columnsService.deleteColumn(id);
   }
 }

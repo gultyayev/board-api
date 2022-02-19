@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -18,10 +17,7 @@ import { TasksService } from './tasks.service';
 @Controller('tasks')
 @ApiTags('tasks')
 export class TasksController {
-  constructor(
-    private tasksService: TasksService,
-    private columnsService: ColumnsService,
-  ) {}
+  constructor(private tasksService: TasksService) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
@@ -29,11 +25,7 @@ export class TasksController {
     summary: 'Add new task',
   })
   @ApiBearerAuth()
-  addTask(@Body() task: AddTaskDto): TaskDto {
-    if (!this.columnsService.hasColumn(task.columnId)) {
-      throw new NotFoundException('Column does not exist');
-    }
-
+  async addTask(@Body() task: AddTaskDto): Promise<TaskDto> {
     return this.tasksService.addTask(task);
   }
 
@@ -43,16 +35,8 @@ export class TasksController {
     summary: 'Update task',
   })
   @ApiBearerAuth()
-  updateTask(@Body() task: TaskDto): void {
-    if (!this.tasksService.hasTask(task.id)) {
-      throw new NotFoundException();
-    }
-
-    if (!this.columnsService.hasColumn(task.columnId)) {
-      throw new NotFoundException('Column does not exist');
-    }
-
-    this.tasksService.updateTask(task);
+  async updateTask(@Body() task: TaskDto): Promise<void> {
+    await this.tasksService.updateTask(task);
   }
 
   @Delete(':id')
@@ -61,12 +45,8 @@ export class TasksController {
     summary: 'Delete task',
   })
   @ApiBearerAuth()
-  deleteTask(@Param() { id }: FindOneDto): void {
-    if (!this.tasksService.hasTask(id)) {
-      throw new NotFoundException();
-    }
-
-    this.tasksService.deleteTask(id);
+  async deleteTask(@Param() { id }: FindOneDto): Promise<void> {
+    await this.tasksService.deleteTask(id);
   }
 
   @Put('reorder')
@@ -75,13 +55,7 @@ export class TasksController {
     summary: 'Reorder tasks',
   })
   @ApiBearerAuth()
-  reorderTasks(@Body() taskList: ReorderTasksDto): void {
-    taskList.ids.forEach((id) => {
-      if (!this.tasksService.hasTask(id)) {
-        throw new NotFoundException();
-      }
-    });
-
-    this.tasksService.reorderTasks(taskList);
+  async reorderTasks(@Body() taskList: ReorderTasksDto): Promise<void> {
+    await this.tasksService.reorderTasks(taskList);
   }
 }
