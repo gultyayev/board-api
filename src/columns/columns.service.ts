@@ -1,25 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { readFileSync, writeFileSync } from 'fs';
 import { AddColumnDto, ColumnDto } from './dtos/column.dto';
-
-const path = 'columns.json';
 
 @Injectable()
 export class ColumnsService {
   private columns: ColumnDto[] = [];
 
-  constructor() {
-    const columns: string = readFileSync(path, {
-      encoding: 'utf-8',
-      flag: 'a+',
-    });
-
-    if (columns) {
-      const obj = JSON.parse(columns) || [];
-      this.columns = obj;
-    }
-  }
+  constructor() {}
 
   getColumns(): ColumnDto[] {
     return this.columns;
@@ -31,7 +18,6 @@ export class ColumnsService {
       title,
     };
     this.columns.push(col);
-    this.writeColumns();
     return col;
   }
 
@@ -43,7 +29,6 @@ export class ColumnsService {
     }
 
     this.columns[columnIndex].title = title;
-    this.writeColumns();
   }
 
   hasColumn(id: string): boolean {
@@ -52,10 +37,5 @@ export class ColumnsService {
 
   deleteColumn(id: string): void {
     this.columns = this.columns.filter((col) => col.id !== id);
-    this.writeColumns;
-  }
-
-  private writeColumns(): void {
-    writeFileSync(path, JSON.stringify(this.columns), { encoding: 'utf-8' });
   }
 }

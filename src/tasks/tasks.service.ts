@@ -1,25 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { readFileSync, writeFileSync } from 'fs';
 import { AddTaskDto, ReorderTasksDto, TaskDto } from './dtos/task.dto';
-
-const path = 'tasks.json';
 
 @Injectable()
 export class TasksService {
   tasks: TaskDto[] = [];
 
-  constructor() {
-    const tasks: string = readFileSync(path, {
-      encoding: 'utf-8',
-      flag: 'a+',
-    });
-
-    if (tasks) {
-      const obj = JSON.parse(tasks) || [];
-      this.tasks = obj;
-    }
-  }
+  constructor() {}
 
   addTask(task: AddTaskDto): TaskDto {
     const newTask = {
@@ -27,7 +14,6 @@ export class TasksService {
       ...task,
     };
     this.tasks.push(newTask);
-    this.writeTasks();
     return newTask;
   }
 
@@ -37,13 +23,11 @@ export class TasksService {
 
   deleteTask(id: string): void {
     this.tasks = this.tasks.filter((t) => t.id !== id);
-    this.writeTasks();
   }
 
   updateTask(task: TaskDto): void {
     const idx = this.tasks.findIndex((t) => t.id === task.id);
     this.tasks[idx] = task;
-    this.writeTasks();
   }
 
   reorderTasks(taskList: ReorderTasksDto): void {
@@ -51,19 +35,13 @@ export class TasksService {
       const taskIdx = this.tasks.findIndex((task) => task.id === id);
       this.tasks.push(...this.tasks.splice(taskIdx, 1));
     });
-    this.writeTasks();
   }
 
   deleteTasksByColId(columnId: string): void {
     this.tasks = this.tasks.filter((task) => task.columnId !== columnId);
-    this.writeTasks();
   }
 
   getTasks(): TaskDto[] {
     return this.tasks;
-  }
-
-  private writeTasks(): void {
-    writeFileSync(path, JSON.stringify(this.tasks), { encoding: 'utf-8' });
   }
 }
