@@ -7,7 +7,7 @@ import {
 import { randomUUID } from 'crypto';
 import { dynamoDB } from 'src/db';
 import { COLUMNS_TABLE } from 'src/env';
-import { AddColumnDto, ColumnDto } from './dtos/column.dto';
+import { AddColumnDto, ColumnDto, UpdateDto } from './dtos/column.dto';
 
 @Injectable()
 export class ColumnsService {
@@ -33,6 +33,7 @@ export class ColumnsService {
     const col: ColumnDto = {
       id: randomUUID(),
       title,
+      tasks: [],
     };
 
     await dynamoDB
@@ -47,7 +48,7 @@ export class ColumnsService {
     return col;
   }
 
-  async updateColumn({ id, title }: ColumnDto): Promise<void> {
+  async updateColumn({ id, title }: UpdateDto): Promise<void> {
     try {
       await dynamoDB
         .update({
