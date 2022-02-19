@@ -2,7 +2,9 @@ service: aws-node-express-dynamodb-api-project
 frameworkVersion: '3'
 
 custom:
-  tableName: 'users-table-${sls:stage}'
+  usersTableName: 'users-table-${sls:stage}'
+  columnsTableName: 'columns-table-${sls:stage}'
+  tasksTableName: 'tasks-table-${sls:stage}'
   dynamodb:
     stages:
       - ${self:provider.stage}
@@ -38,7 +40,9 @@ provider:
             - Fn::GetAtt: [UsersTable, Arn]
   environment:
     STAGE: ${self:provider.stage}
-    USERS_TABLE: ${self:custom.tableName}
+    USERS_TABLE: ${self:custom.usersTableName}
+    TASKS_TABLE: ${self:custom.tasksTableName}
+    COLUMNS_TABLE: ${self:custom.columnsTableName}
     DYNAMODB_ENDPOINT: ${self:custom.endpoints.dynamodbURL}
     SALT: 0da7092f262da23f22e377d4d7db1cd7cf64bafee0c40fc9 # Move to AWS
 
@@ -61,4 +65,26 @@ resources:
           - AttributeName: username
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.usersTableName}
+    TasksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tasksTableName}
+    ColumnsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.columnsTableName}

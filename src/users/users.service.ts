@@ -1,19 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { scrypt } from 'crypto';
+import { randomUUID, scrypt } from 'crypto';
 import { dynamoDB } from 'src/db';
 import { SALT, USERS_TABLE } from 'src/env';
 import { promisify } from 'util';
-import { v4 as uuid } from 'uuid';
 
 const scriptPromise = promisify(scrypt);
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-
-  constructor() {
-    console.log(this.logger);
-  }
 
   async validateUser(username: string, password: string): Promise<boolean> {
     this.logger.verbose(`Check user is valid "${username}"`);
@@ -63,7 +58,7 @@ export class UsersService {
     this.logger.verbose(`Add user "${username}"`);
 
     const user = {
-      id: uuid(),
+      id: randomUUID(),
       username,
       password: await this.getHash(password),
       createdAt: new Date().toISOString(),

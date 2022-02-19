@@ -15,8 +15,8 @@ export class BoardController {
   ) {}
 
   @Get()
-  getAll(): BoardDto {
-    const columns: ColumnDto[] = this.columnsService.getColumns();
+  async getAll(): Promise<BoardDto> {
+    const columns: ColumnDto[] = await this.columnsService.getColumns();
     const tasks: TaskDto[] = this.tasksService.getTasks();
 
     return {

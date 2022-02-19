@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -29,7 +28,7 @@ export class ColumnsController {
     summary: 'Add new column',
   })
   @ApiBearerAuth()
-  addColumn(@Body() column: AddColumnDto): ColumnDto {
+  addColumn(@Body() column: AddColumnDto): Promise<ColumnDto> {
     return this.columnsService.addColumn(column);
   }
 
@@ -39,8 +38,8 @@ export class ColumnsController {
     summary: 'Update existing column',
   })
   @ApiBearerAuth()
-  updateColumn(@Body() column: ColumnDto): void {
-    this.columnsService.updateColumn(column);
+  async updateColumn(@Body() column: ColumnDto): Promise<void> {
+    await this.columnsService.updateColumn(column);
   }
 
   @Delete(':id')
@@ -49,12 +48,8 @@ export class ColumnsController {
     summary: 'Update existing column',
   })
   @ApiBearerAuth()
-  deleteColumn(@Param() { id }: FindOneDto): void {
-    if (!this.columnsService.hasColumn(id)) {
-      throw new NotFoundException();
-    }
-
-    this.columnsService.deleteColumn(id);
+  async deleteColumn(@Param() { id }: FindOneDto): Promise<void> {
+    await this.columnsService.deleteColumn(id);
     this.tasksService.deleteTasksByColId(id);
   }
 }
