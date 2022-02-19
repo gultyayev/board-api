@@ -29,12 +29,12 @@ export class AuthController {
   }
 
   @Post('signup')
-  addUser(@Body() user: CreateUserDto, @Res() res: Response) {
-    if (this.usersService.hasUser(user.username)) {
+  async addUser(@Body() user: CreateUserDto, @Res() res: Response) {
+    if (await this.usersService.hasUser(user.username)) {
       return res.status(406).send('User exists').end();
     }
 
-    this.usersService.addUser(user.username, user.password);
+    await this.usersService.addUser(user.username, user.password);
     res.status(201).end();
   }
 }

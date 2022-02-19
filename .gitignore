@@ -4,6 +4,7 @@
 
 # Serverless
 .serverless
+.dynamodb
 
 # Logs
 logs
