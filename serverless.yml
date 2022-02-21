@@ -37,6 +37,7 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [ColumnsTable, Arn]
   environment:
     STAGE: ${self:provider.stage}
     USERS_TABLE: ${self:custom.usersTableName}
