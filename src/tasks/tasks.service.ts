@@ -14,29 +14,13 @@ export class TasksService {
   private readonly logger = new Logger(TasksService.name);
 
   async addTask(task: AddTaskDto): Promise<TaskDto> {
-    const newTask = {
+    const newTask: TaskDto = {
       id: randomUUID(),
       ...task,
     };
 
     try {
-      await dynamoDB
-        .update({
-          TableName: COLUMNS_TABLE,
-          Key: {
-            id: task.columnId,
-          },
-          UpdateExpression: "SET #t = list_append(#t, :vals)",
-          ExpressionAttributeNames: {
-            "#t": "tasks",
-          },
-          ExpressionAttributeValues: {
-            ":vals": [newTask],
-            ":id": newTask.columnId,
-          },
-          ConditionExpression: "id = :id",
-        })
-        .promise();
+      await this.appendTask(newTask);
     } catch (e) {
       if (e.code === "ConditionalCheckFailedException") {
         throw new NotFoundException("Column does not exist");
@@ -54,17 +38,7 @@ export class TasksService {
     try {
       const { column, taskIdx } = await this.getColumnByTaskID(id);
 
-      await dynamoDB
-        .update({
-          TableName: COLUMNS_TABLE,
-          Key: { id: column.id },
-          UpdateExpression: `REMOVE tasks[${taskIdx}]`,
-          ExpressionAttributeValues: {
-            ":id": column.id,
-          },
-          ConditionExpression: "id = :id",
-        })
-        .promise();
+      await this.dropTask(column.id, taskIdx);
     } catch (e) {
       if (e.code === "ConditionalCheckFailedException") {
         throw new NotFoundException("Column does not exist");
@@ -79,19 +53,27 @@ export class TasksService {
   async updateTask(task: TaskDto): Promise<void> {
     try {
       const { column, taskIdx } = await this.getColumnByTaskID(task.id);
+      const currentColumnId = column.tasks[taskIdx].columnId;
 
-      await dynamoDB
-        .update({
-          TableName: COLUMNS_TABLE,
-          Key: { id: column.id },
-          UpdateExpression: `SET tasks[${taskIdx}] = :task`,
-          ExpressionAttributeValues: {
-            ":task": task,
-            ":id": column.id,
-          },
-          ConditionExpression: "id = :id",
-        })
-        .promise();
+      if (currentColumnId !== task.columnId) {
+        await Promise.all([
+          this.dropTask(column.id, taskIdx),
+          this.appendTask(task),
+        ]);
+      } else {
+        await dynamoDB
+          .update({
+            TableName: COLUMNS_TABLE,
+            Key: { id: column.id },
+            UpdateExpression: `SET tasks[${taskIdx}] = :task`,
+            ExpressionAttributeValues: {
+              ":task": task,
+              ":id": column.id,
+            },
+            ConditionExpression: "id = :id",
+          })
+          .promise();
+      }
     } catch (e) {
       if (e.code === "ConditionalCheckFailedException") {
         throw new NotFoundException();
@@ -172,5 +154,39 @@ export class TasksService {
       column,
       taskIdx,
     };
+  }
+
+  private async appendTask(task: TaskDto): Promise<void> {
+    await dynamoDB
+      .update({
+        TableName: COLUMNS_TABLE,
+        Key: {
+          id: task.columnId,
+        },
+        UpdateExpression: "SET #t = list_append(#t, :vals)",
+        ExpressionAttributeNames: {
+          "#t": "tasks",
+        },
+        ExpressionAttributeValues: {
+          ":vals": [task],
+          ":id": task.columnId,
+        },
+        ConditionExpression: "id = :id",
+      })
+      .promise();
+  }
+
+  private async dropTask(columnId: string, taskIdx: number): Promise<void> {
+    await dynamoDB
+      .update({
+        TableName: COLUMNS_TABLE,
+        Key: { id: columnId },
+        UpdateExpression: `REMOVE tasks[${taskIdx}]`,
+        ExpressionAttributeValues: {
+          ":id": columnId,
+        },
+        ConditionExpression: "id = :id",
+      })
+      .promise();
   }
 }
