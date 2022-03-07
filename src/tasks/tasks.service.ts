@@ -107,7 +107,7 @@ export class TasksService {
     this.logger.log("Reorder tasks", taskList);
 
     try {
-      const { column } = await this.getColumnByTaskID(taskList.ids[0], true);
+      const { column } = await this.getColumnByTaskID(taskList.ids[0]);
       taskList.ids.forEach((id) => {
         const taskIdx = column.tasks.findIndex((task) => task.id === id);
 
