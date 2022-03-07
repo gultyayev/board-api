@@ -3,11 +3,11 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from "@nestjs/common";
-import { randomUUID } from "crypto";
-import { dynamoDB } from "src/db";
-import { COLUMNS_TABLE } from "src/env";
-import { AddTaskDto, ReorderTasksDto, TaskDto } from "./dtos/task.dto";
+} from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { dynamoDB } from 'src/db';
+import { COLUMNS_TABLE } from 'src/env';
+import { AddTaskDto, ReorderTasksDto, TaskDto } from './dtos/task.dto';
 
 @Injectable()
 export class TasksService {
@@ -22,8 +22,8 @@ export class TasksService {
     try {
       await this.appendTask(newTask);
     } catch (e) {
-      if (e.code === "ConditionalCheckFailedException") {
-        throw new NotFoundException("Column does not exist");
+      if (e.code === 'ConditionalCheckFailedException') {
+        throw new NotFoundException('Column does not exist');
       } else {
         this.logger.error(e, e.stack);
 
@@ -40,8 +40,8 @@ export class TasksService {
 
       await this.dropTask(column.id, taskIdx);
     } catch (e) {
-      if (e.code === "ConditionalCheckFailedException") {
-        throw new NotFoundException("Column does not exist");
+      if (e.code === 'ConditionalCheckFailedException') {
+        throw new NotFoundException('Column does not exist');
       } else {
         this.logger.error(e, e.stack);
 
@@ -67,15 +67,15 @@ export class TasksService {
             Key: { id: column.id },
             UpdateExpression: `SET tasks[${taskIdx}] = :task`,
             ExpressionAttributeValues: {
-              ":task": task,
-              ":id": column.id,
+              ':task': task,
+              ':id': column.id,
             },
-            ConditionExpression: "id = :id",
+            ConditionExpression: 'id = :id',
           })
           .promise();
       }
     } catch (e) {
-      if (e.code === "ConditionalCheckFailedException") {
+      if (e.code === 'ConditionalCheckFailedException') {
         throw new NotFoundException();
       } else {
         this.logger.error(e, e.stack);
@@ -86,7 +86,7 @@ export class TasksService {
   }
 
   async reorderTasks(taskList: ReorderTasksDto): Promise<void> {
-    this.logger.log("Reorder tasks", taskList);
+    this.logger.log('Reorder tasks', taskList);
 
     try {
       const { column } = await this.getColumnByTaskID(taskList.ids[0]);
@@ -104,16 +104,16 @@ export class TasksService {
         .update({
           TableName: COLUMNS_TABLE,
           Key: { id: column.id },
-          UpdateExpression: "SET tasks = :tasks",
+          UpdateExpression: 'SET tasks = :tasks',
           ExpressionAttributeValues: {
-            ":tasks": column.tasks,
-            ":id": column.id,
+            ':tasks': column.tasks,
+            ':id': column.id,
           },
-          ConditionExpression: "id = :id",
+          ConditionExpression: 'id = :id',
         })
         .promise();
     } catch (e) {
-      if (e.code === "ConditionalCheckFailedException") {
+      if (e.code === 'ConditionalCheckFailedException') {
         throw new NotFoundException();
       } else {
         this.logger.error(e, e.stack);
@@ -123,7 +123,7 @@ export class TasksService {
     }
   }
 
-  private async getColumnByTaskID(id: string, consistent: false) {
+  private async getColumnByTaskID(id: string, consistent = false) {
     const result = await dynamoDB
       .scan({
         TableName: COLUMNS_TABLE,
@@ -131,7 +131,7 @@ export class TasksService {
       })
       .promise();
 
-    this.logger.log("Get column by task id: ", {
+    this.logger.log('Get column by task id: ', {
       id,
       result,
     });
@@ -143,7 +143,7 @@ export class TasksService {
           taskIdx = index;
           return true;
         }
-      })
+      }),
     );
 
     if (taskIdx < 0) {
@@ -163,15 +163,15 @@ export class TasksService {
         Key: {
           id: task.columnId,
         },
-        UpdateExpression: "SET #t = list_append(#t, :vals)",
+        UpdateExpression: 'SET #t = list_append(#t, :vals)',
         ExpressionAttributeNames: {
-          "#t": "tasks",
+          '#t': 'tasks',
         },
         ExpressionAttributeValues: {
-          ":vals": [task],
-          ":id": task.columnId,
+          ':vals': [task],
+          ':id': task.columnId,
         },
-        ConditionExpression: "id = :id",
+        ConditionExpression: 'id = :id',
       })
       .promise();
   }
@@ -183,9 +183,9 @@ export class TasksService {
         Key: { id: columnId },
         UpdateExpression: `REMOVE tasks[${taskIdx}]`,
         ExpressionAttributeValues: {
-          ":id": columnId,
+          ':id': columnId,
         },
-        ConditionExpression: "id = :id",
+        ConditionExpression: 'id = :id',
       })
       .promise();
   }

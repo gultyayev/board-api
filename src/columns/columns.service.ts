@@ -3,18 +3,18 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-} from "@nestjs/common";
-import { randomUUID } from "crypto";
-import { dynamoDB } from "src/db";
-import { COLUMNS_TABLE } from "src/env";
-import { AddColumnDto, ColumnDto, UpdateDto } from "./dtos/column.dto";
+} from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { dynamoDB } from 'src/db';
+import { COLUMNS_TABLE } from 'src/env';
+import { AddColumnDto, ColumnDto, UpdateDto } from './dtos/column.dto';
 
 @Injectable()
 export class ColumnsService {
   private readonly logger = new Logger(ColumnsService.name);
 
   async getColumns(): Promise<ColumnDto[]> {
-    this.logger.verbose("Get all columns");
+    this.logger.verbose('Get all columns');
 
     const result = await dynamoDB
       .scan({
@@ -22,13 +22,13 @@ export class ColumnsService {
       })
       .promise();
 
-    this.logger.verbose("Result", result);
+    this.logger.verbose('Result', result);
 
     return (result.Items as any) || [];
   }
 
   async addColumn({ title }: AddColumnDto): Promise<ColumnDto> {
-    this.logger.verbose("Add column");
+    this.logger.verbose('Add column');
 
     const col: ColumnDto = {
       id: randomUUID(),
@@ -44,7 +44,7 @@ export class ColumnsService {
       })
       .promise();
 
-    this.logger.verbose("Column added", col);
+    this.logger.verbose('Column added', col);
 
     return col;
   }
@@ -57,16 +57,16 @@ export class ColumnsService {
           Key: {
             id,
           },
-          UpdateExpression: "SET title = :title",
+          UpdateExpression: 'SET title = :title',
           ExpressionAttributeValues: {
-            ":title": title,
-            ":id": id,
+            ':title': title,
+            ':id': id,
           },
-          ConditionExpression: "id = :id",
+          ConditionExpression: 'id = :id',
         })
         .promise();
     } catch (e) {
-      if (e.code === "ConditionalCheckFailedException") {
+      if (e.code === 'ConditionalCheckFailedException') {
         throw new NotFoundException();
       } else {
         this.logger.error(e);
@@ -96,7 +96,7 @@ export class ColumnsService {
         })
         .promise();
     } catch (e) {
-      if (e.code === "ConditionalCheckFailedException") {
+      if (e.code === 'ConditionalCheckFailedException') {
         throw new NotFoundException();
       } else {
         this.logger.error(e);
