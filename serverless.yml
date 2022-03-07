@@ -1,16 +1,16 @@
 service: aws-node-express-dynamodb-api-project
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 custom:
-  usersTableName: 'users-table-${sls:stage}'
-  columnsTableName: 'columns-table-${sls:stage}'
+  usersTableName: "users-table-${sls:stage}"
+  columnsTableName: "columns-table-${sls:stage}"
   dynamodb:
     stages:
       - ${self:provider.stage}
     start:
       migrate: true
   endpoints:
-    dynamodbURL: 'http://localhost:8000'
+    dynamodbURL: "http://localhost:8000"
 
 plugins:
   - serverless-dynamodb-local
@@ -71,8 +71,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.columnsTableName}

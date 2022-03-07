@@ -1,6 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString, IsUUID, MinLength } from 'class-validator';
-import { TaskDto } from 'src/tasks/dtos/task.dto';
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsArray,
+  IsString,
+  IsUUID,
+  MinLength,
+  IsISO8601,
+} from "class-validator";
+import { TaskDto } from "src/tasks/dtos/task.dto";
 
 export class AddColumnDto {
   @IsString()
@@ -22,4 +28,7 @@ export class ColumnDto extends AddColumnDto {
   })
   @IsArray()
   tasks: TaskDto[];
+
+  @IsISO8601()
+  createdAt: string;
 }
