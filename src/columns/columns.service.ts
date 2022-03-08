@@ -24,7 +24,20 @@ export class ColumnsService {
 
     this.logger.verbose('Result', result);
 
-    return (result.Items as any) || [];
+    return (
+      (result.Items as any).sort((a, b) => {
+        const res =
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+
+        if (res > 0) {
+          return 1;
+        } else if (res < 0) {
+          return -1;
+        } else {
+          return 0;
+        }
+      }) || []
+    );
   }
 
   async addColumn({ title }: AddColumnDto): Promise<ColumnDto> {
