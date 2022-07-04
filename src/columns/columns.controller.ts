@@ -11,7 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindOneDto } from 'src/shared/dtos/one.dto';
 import { ColumnsService } from './columns.service';
-import { AddColumnDto, ColumnDto } from './dtos/column.dto';
+import { AddColumnDto, ColumnDto, UpdateColumnDto } from './dtos/column.dto';
 
 @ApiTags('columns')
 @Controller('columns')
@@ -34,7 +34,7 @@ export class ColumnsController {
     summary: 'Update existing column',
   })
   @ApiBearerAuth()
-  async updateColumn(@Body() column: ColumnDto): Promise<void> {
+  async updateColumn(@Body() column: UpdateColumnDto): Promise<void> {
     await this.columnsService.updateColumn(column);
   }
 
