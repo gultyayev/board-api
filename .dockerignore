@@ -1,0 +1,5 @@
+/.dynamodb
+/.idea
+/dist
+/node_modules
+/test
